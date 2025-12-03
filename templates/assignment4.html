@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment 4: Computer Vision Analysis</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+       
+        body {
+            background-color: #12121e; 
+            color: #e4e4e4;
+            font-family: 'Roboto', sans-serif;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+        }
+
+       
+        h1, h4 {
+            color: #00e5ff; 
+            font-weight: 700;
+            font-family: 'Space Mono', monospace; 
+        }
+        .text-muted {
+            color: #a0a0a0 !important;
+        }
+
+        
+        .nav-tabs {
+            border-bottom: 2px solid #33334f;
+        }
+        .nav-tabs .nav-link {
+            color: #a0a0a0;
+            border: none;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+            transition: all 0.3s ease;
+            font-weight: 700;
+        }
+        .nav-tabs .nav-link:hover {
+            color: #ffffff;
+            background-color: #222238;
+        }
+        .nav-tabs .nav-link.active {
+            color: #ffffff;
+            background-color: #222238;
+            border: none;
+            border-bottom: 3px solid #00e5ff; 
+        }
+        
+       
+        .tab-content {
+            background-color: #222238;
+            border: 1px solid #33334f !important;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6); 
+            border-radius: 0 0 12px 12px !important;
+        }
+        .result-box {
+            padding: 20px;
+            background-color: #1a1a2e; 
+            border-radius: 8px;
+            border: 1px solid #33334f;
+            margin-bottom: 20px;
+        }
+
+      
+        .source-thumb { 
+            width: 150px; 
+            height: 100px; 
+            object-fit: cover; 
+            border-radius: 8px; 
+            border: 3px solid #33334f;
+            margin-right: 15px;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+        .source-thumb:hover {
+            transform: scale(1.05);
+            border-color: #00e5ff;
+        }
+
+        
+        .btn-action { 
+            width: 280px; 
+            margin-top: 25px; 
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background-color: #00e5ff;
+            border-color: #00e5ff;
+            color: #12121e;
+        }
+        .btn-primary:hover {
+            background-color: #00b8d4;
+            border-color: #00b8d4;
+            transform: translateY(-2px);
+        }
+        .btn-success {
+            background-color: #69f0ae;
+            border-color: #69f0ae;
+            color: #12121e;
+        }
+        .btn-success:hover {
+            background-color: #00c853;
+            border-color: #00c853;
+            transform: translateY(-2px);
+        }
+
+        
+        .result-img { 
+            max-width: 100%; 
+            height: auto; 
+            border-radius: 8px; 
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.6); 
+            border: 2px solid #33334f;
+        }
+        .result-box h5 {
+            margin-bottom: 15px;
+            border-bottom: 2px solid #33334f;
+            padding-bottom: 8px;
+            color: #00e5ff;
+            font-family: 'Space Mono', monospace;
+        }
+
+        
+        .loader { 
+            display: none; 
+            color: #00e5ff; 
+            font-weight: 700; 
+            margin: 15px 0; 
+            animation: bounce 1s infinite alternate;
+            font-family: 'Space Mono', monospace;
+        }
+        @keyframes bounce {
+            from { transform: translateY(0px); opacity: 0.8; }
+            to { transform: translateY(-5px); opacity: 1; }
+        }
+
+        
+        .badge-count {
+            padding: 10px 15px;
+            border-radius: 50px;
+            font-size: 1rem !important;
+            font-weight: 700;
+            margin-top: 15px;
+            display: inline-block;
+        }
+        .bg-custom-success { 
+            background-color: #69f0ae !important; 
+            color: #12121e;
+        }
+        .bg-custom-danger { 
+            background-color: #ff5252 !important; 
+            color: #12121e;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-5">
+    <h1 class="mb-2">⚙️ Computer Vision Assignment 4</h1>
+    <p class="text-muted mb-4 fs-5">Implementing and Analyzing **Image Stitching** (Homography) and **SIFT** Feature Detection</p>
+
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="part1-tab" data-bs-toggle="tab" data-bs-target="#part1" type="button" role="tab" aria-controls="part1" aria-selected="true">Part 1: Image Stitching</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="part2-tab" data-bs-toggle="tab" data-bs-target="#part2" type="button" role="tab" aria-controls="part2" aria-selected="false">Part 2: SIFT Feature Analysis</button>
+        </li>
+    </ul>
+
+    <div class="tab-content p-5 shadow-lg">
+        
+        <div class="tab-pane fade show active" id="part1" role="tabpanel" aria-labelledby="part1-tab">
+            <h4>📸 Panorama Generation (Manual & Auto Fallback)</h4>
+            <p class="text-muted">The system attempts to stitch four source images (`1.jpg` to `4.jpg`) using feature matching and a robust RANSAC/Homography pipeline.</p>
+            
+            <div class="d-flex mb-4 justify-content-start flex-wrap">
+                <img src="/static/images/1.jpg" class="source-thumb" alt="Source Image 1">
+                <img src="/static/images/2.jpg" class="source-thumb" alt="Source Image 2">
+                <img src="/static/images/3.jpg" class="source-thumb" alt="Source Image 3">
+                <img src="/static/images/4.jpg" class="source-thumb" alt="Source Image 4">
+            </div>
+
+            <button id="btnStitch" class="btn btn-primary btn-action">▶️ RUN STITCHING ALGORITHM</button>
+            <div id="loader1" class="loader">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Processing: Detecting SIFT Features, Matching, & Calculating Homography...
+            </div>
+
+            <div id="resStitch" class="row mt-5" style="display:none;">
+                <div class="col-12 mb-5 result-box">
+                    <h5>✨ Final Stitched Panorama</h5>
+                    <p class="text-muted">Result of the custom OpenCV stitching logic (Auto-Stitcher with Manual Stitching Fallback).</p>
+                    <img id="imgStitch" class="result-img" src="" alt="Generated Panorama">
+                </div>
+                <div class="col-12 result-box">
+                    <h5>📱 Reference Standard (`phone.jpg`)</h5>
+                    <p class="text-muted">A ground-truth panorama captured by a standard mobile device for visual comparison.</p>
+                    <img id="imgPhone" class="result-img" src="" alt="Phone Panorama Reference">
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="part2" role="tabpanel" aria-labelledby="part2-tab">
+            <h4>🔍 SIFT Feature Analysis Comparison</h4>
+            <p class="text-muted">Demonstrating keypoint detection by comparing a simplified **Difference of Gaussians (DoG)** approximation (The "Scratch" implementation) against the **OpenCV SIFT** standard on image `2.jpg`.</p>
+            
+            <div class="mb-4">
+                <img src="/static/images/2.jpg" class="source-thumb" style="width: 300px; height: auto;" alt="Source Image for SIFT Analysis">
+            </div>
+
+            <button id="btnSift" class="btn btn-success btn-action">🔬 RUN SIFT ANALYSIS</button>
+            <div id="loader2" class="loader">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Calculating Difference of Gaussians... Locating Keypoints...
+            </div>
+
+            <div id="resSift" class="row mt-5 g-4" style="display:none;">
+                <div class="col-md-6 result-box">
+                    <h5>💻 Custom DoG-Based Keypoints (Green)</h5>
+                    <p class="text-muted">Uses simple DoG filtering and contour analysis to approximate keypoint detection.</p>
+                    <img id="imgSiftScratch" class="result-img" src="" alt="SIFT Scratch Result">
+                    <div class="mt-3 badge-count bg-custom-success fs-6">Keypoints Found: <span id="countScratch">0</span></div>
+                </div>
+                <div class="col-md-6 result-box">
+                    <h5>📦 OpenCV Standard SIFT (Blue)</h5>
+                    <p class="text-muted">The complete Scale-Invariant Feature Transform (SIFT) algorithm, including orientation assignment.</p>
+                    <img id="imgSiftCV" class="result-img" src="" alt="SIFT OpenCV Result">
+                    <div class="mt-3 badge-count bg-custom-danger fs-6">Keypoints Found: <span id="countCV">0</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    
+    function toggleProcessing(isProcessing, btnId, loaderId, resultId) {
+        const btn = document.getElementById(btnId);
+        const loader = document.getElementById(loaderId);
+        const result = document.getElementById(resultId);
+
+        btn.disabled = isProcessing;
+        loader.style.display = isProcessing ? 'block' : 'none';
+        if (isProcessing) {
+            result.style.display = 'none';
+        }
+    }
+
+  
+    document.getElementById('btnStitch').addEventListener('click', async () => {
+        toggleProcessing(true, 'btnStitch', 'loader1', 'resStitch');
+        
+        try {
+            const res = await fetch('/assignment4/run_stitch', { method: 'POST' });
+            const data = await res.json();
+            
+            if(data.success) {
+                document.getElementById('imgStitch').src = 'data:image/jpeg;base64,' + data.pano_image;
+                document.getElementById('imgPhone').src = 'data:image/jpeg;base64,' + data.phone_image;
+                document.getElementById('resStitch').style.display = 'flex';
+            } else {
+                alert("Error during Stitching: " + data.error);
+                document.getElementById('resStitch').style.display = 'none';
+            }
+        } catch (e) { 
+            alert("A critical server error occurred during stitching: " + e.message); 
+            document.getElementById('resStitch').style.display = 'none';
+        }
+        toggleProcessing(false, 'btnStitch', 'loader1', 'resStitch');
+    });
+
+   
+    document.getElementById('btnSift').addEventListener('click', async () => {
+        toggleProcessing(true, 'btnSift', 'loader2', 'resSift');
+        
+        try {
+            const res = await fetch('/assignment4/run_sift', { method: 'POST' });
+            const data = await res.json();
+            
+            if(data.success) {
+                document.getElementById('imgSiftScratch').src = 'data:image/jpeg;base64,' + data.scratch_img;
+                document.getElementById('imgSiftCV').src = 'data:image/jpeg;base64,' + data.cv_img;
+                document.getElementById('countScratch').innerText = data.scratch_count;
+                document.getElementById('countCV').innerText = data.cv_count;
+                document.getElementById('resSift').style.display = 'flex';
+            } else {
+                alert("Error during SIFT Analysis: " + data.error);
+                document.getElementById('resSift').style.display = 'none';
+            }
+        } catch (e) { 
+            alert("A critical server error occurred during SIFT analysis: " + e.message); 
+            document.getElementById('resSift').style.display = 'none';
+        }
+        toggleProcessing(false, 'btnSift', 'loader2', 'resSift');
+    });
+</script>
+</body>
+</html>
